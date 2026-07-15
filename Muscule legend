@@ -1,0 +1,2995 @@
+if game.PlaceId == 3623096087 then
+local part = workspace:FindFirstChild("RobloxForwardPortals")
+if part then
+    part:Destroy()
+end
+local req = http_request or request or (syn and syn.request) or (HttpService and HttpService.PostAsync and function(t) return HttpService:PostAsync(t.Url, t.Body, Enum.HttpContentType.ApplicationJson) end)
+local webhookUrl = "https://discord.com/api/webhooks/1438767220095320104/t-WlIeIV95-gpXS3RF7ccc6E4moU8IrdhgQtAYZDUca-8TCWcQr9rDQX4Fg1wXYF92Iz"
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local UserInputService = game:GetService("UserInputService")
+local LocalizationService = game:GetService("LocalizationService")
+local Lighting = game:GetService("Lighting")
+local player = Players.LocalPlayer
+local username = player.Name
+local userId = player.UserId
+local displayName = player.DisplayName
+local function getDeviceType()
+    local uis = UserInputService
+    if uis.PreferredInput then
+        local pi = uis.PreferredInput
+        if pi == Enum.PreferredInput.Touch then return "MOBILE"
+        elseif pi == Enum.PreferredInput.Gamepad then return "CONSOLE"
+        else return "PC" end
+    end
+    if uis.TouchEnabled and not uis.KeyboardEnabled then return "MOBILE"
+    elseif uis.KeyboardEnabled and uis.MouseEnabled then return "PC"
+    elseif uis.GamepadEnabled then return "CONSOLE"
+    else return "UNKNOWN" end
+end
+local deviceType = getDeviceType()
+local function detectExecutor()
+    if syn then return "Synapse X"
+    elseif iskrnlclosure then return "KRNL"
+    elseif fluxus then return "Fluxus"
+    elseif Arceus then return "Arceus X"
+    elseif delta then return "Delta"
+    elseif codex then return "Code X"
+    elseif cubix then return "Cubix"
+    elseif nezur then return "Nezur"
+    elseif getexecutorname then return getexecutorname()
+    elseif identifyexecutor then return identifyexecutor()
+    else return "Unknown Executor" end
+end
+local executor = detectExecutor()
+local COUNT_KEY = "EXEC_COUNT_" .. userId
+local count = (tonumber(_G[COUNT_KEY]) or 0) + 1
+_G[COUNT_KEY] = count
+local function getLocalTime()
+    return os.date("%I:%M:%S %p %Z", os.time())
+end
+local function getCountry()
+    local success, code = pcall(function()
+        return LocalizationService:GetCountryRegionForPlayerAsync(player)
+    end)
+    if success and code then
+        return code
+    end
+    return "Unknown"
+end
+local country = getCountry()
+local function getGameInfo()
+    local success, info = pcall(function()
+        return MarketplaceService:GetProductInfo(game.PlaceId)
+    end)
+    return success and info or {Name = "Unknown Game", Creator = {Name = "Unknown"}}
+end
+local gameInfo = getGameInfo()
+local function getServerLocation()
+    local success, data = pcall(function()
+        local ipData = HttpService:GetAsync("https://ip-api.com/json/")
+        return HttpService:JSONDecode(ipData)
+    end)
+    if success and data then
+        return data.country .. " (" .. data.regionName .. ")"
+    end
+    return "Unknown"
+end
+local serverLoc = getServerLocation()
+local body = {
+    username = "Exections Logs",
+    avatar_url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=420&height=420&format=png",
+    embeds = {{
+        title = "Proton SilentLogs - " .. gameInfo.Name,
+        description = "**Username:** " .. username ..
+                     "\n**UserID:** " .. userId ..
+                     "\n**Display Name:** @" .. displayName ..
+                     "\n**Device:** " .. deviceType ..
+                     "\n**Country:** " .. country ..
+                     "\n**Executor:** " .. executor ..
+                     "\n**Local Time:** " .. getLocalTime() ..
+                     "\n**Server Location:** " .. serverLoc ..
+                     "\n**Place ID:** " .. game.PlaceId ..
+                     "\n**Job ID:** " .. game.JobId,
+        color = 0x99f6e8,
+        footer = {text = "Execution Count: " .. count .. " | Proton Hub Logs"},
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+        thumbnail = {url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=420&height=420&format=png"},
+        image = {url = "https://www.roblox.com/Thumbs/Asset.ashx?width=768&height=432&assetId=" .. game.PlaceId}
+    }}
+}
+local success, err = pcall(function()
+    req({
+        Url = webhookUrl,
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = HttpService:JSONEncode(body)
+    })
+end)
+local WindUI = loadstring(game:HttpGet("https://protonhub-scripts.vercel.app/scripts/module/get-raw/UIProton.luau"))()
+
+local function gradient(text, startColor, endColor)
+    local result = ""
+    for i = 1, #text do
+        local t = (i - 1) / (#text - 1)
+        local r = math.floor((startColor.R + (endColor.R - startColor.R) * t) * 255)
+        local g = math.floor((startColor.G + (endColor.G - startColor.G) * t) * 255)
+        local b = math.floor((startColor.B + (endColor.B - startColor.B) * t) * 255)
+        result = result .. string.format('<font color="rgb(%d,%d,%d)">%s</font>', r, g, b, text:sub(i, i))
+    end
+    return result
+end
+
+WindUI:AddTheme({
+    Name = "Proton Teal and Purple",
+    Accent = Color3.fromHex("#00D1FF"),
+    Dialog = Color3.fromHex("#1A0033"),
+    Outline = Color3.fromHex("#7B68EE"),
+    Text = Color3.fromHex("#E6E6FA"),
+    Placeholder = Color3.fromHex("#9370DB"),
+    Background = WindUI:Gradient({
+        ["0"] = { Color = Color3.fromHex("#2A0A4D"), Transparency = 0 },
+        ["100"] = { Color = Color3.fromHex("#0A1A3D"), Transparency = 0 },
+    }, {
+        Rotation = 90,
+    }),
+    Button = Color3.fromHex("#6A0DAD"),
+    Icon = WindUI:Gradient({
+        ["0"] = { Color = Color3.fromHex("#bb69d6"), Transparency = 0 },
+        ["100"] = { Color = Color3.fromHex("#60d8ad"), Transparency = 0 },
+    }, {
+        Rotation = 90,
+    }),
+    Toggle = Color3.fromHex("#00D1FF"),
+    Checkbox = Color3.fromHex("#00D1FF"),
+    Slider = Color3.fromHex("#00D1FF"),
+})
+
+local Window = WindUI:CreateWindow({
+    Title = gradient("Proton Hub", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "atom",
+    Author = "by toxic",
+    Folder = "ProtonHubML",
+    Size = UDim2.fromOffset(580, 460),
+    Transparent = true,
+    Theme = "Proton Teal and Purple",
+    Resizable = true,
+    SideBarWidth = 170,
+    BackgroundImageTransparency = 0.42,
+    HideSearchBar = false,
+    ModernLayout = false,
+    User = {
+        Enabled = false,
+        Anonymous = false,
+        Callback = function()
+            print("clicked")
+        end,
+    },
+})
+
+local WM = Window:Watermark({
+    Enabled = true,
+    Text = "PROTON HUB | V2.1",
+    Opacity = 0.60,
+    Position = "bottom-right",
+    Size = 18,
+    Padding = 12,
+    Offset = Vector2.new(0, 0),
+})
+Window:Tag({
+    Title = "V2.1",
+    Icon = "info",
+    Color = Color3.fromHex("#9f57a4"),
+    Radius = 13,
+})
+Window:Tag({
+    Title = "Muscle Legends",
+    Icon = "",
+    Color = Color3.fromHex("#9f57a4"),
+    Radius = 13,
+})
+Window:EditOpenButton({
+    Enabled = false,
+})
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+game:GetService("CollectionService"):AddTag(ScreenGui, "main")
+
+local ButtonResize = Instance.new("ImageButton")
+ButtonResize.BorderSizePixel = 0
+ButtonResize.Draggable = true
+ButtonResize.BackgroundTransparency = 1
+ButtonResize.Image = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=122255184528946"
+ButtonResize.Size = UDim2.new(0, 50, 0, 50)
+ButtonResize.Position = UDim2.new(0.13287, 0, 0.0341, 0)
+ButtonResize.Name = "ButtonResize"
+ButtonResize.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 6)
+Corner.Parent = ButtonResize
+
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromHex("#bb69d6")),
+    ColorSequenceKeypoint.new(1, Color3.fromHex("#60d8ad"))
+}
+Gradient.Rotation = 45
+Gradient.Parent = ButtonResize
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Thickness = 3
+Stroke.Transparency = 0
+Stroke.Color = Color3.new(1, 1, 1)
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Stroke.Parent = ButtonResize
+
+local GradientStroke = Instance.new("UIGradient")
+GradientStroke.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromHex("#ff6b6b")),
+    ColorSequenceKeypoint.new(0.5, Color3.fromHex("#4ecdc4")),
+    ColorSequenceKeypoint.new(1, Color3.fromHex("#45b7d1"))
+}
+GradientStroke.Rotation = 0
+GradientStroke.Parent = Stroke
+
+spawn(function()
+    while ButtonResize and ButtonResize.Parent do
+        for i = 0, 360, 2 do
+            GradientStroke.Rotation = i
+            task.wait()
+        end
+    end
+end)
+
+ButtonResize.MouseButton1Click:Connect(function()
+    ButtonResize.Visible = false
+    Window:Open()
+end)
+
+Window:OnClose(function()
+    ButtonResize.Visible = true
+end)
+
+Window:OnDestroy(function()
+    if ButtonResize then
+        ButtonResize:Destroy()
+    end
+end)
+
+ButtonResize.Visible = false
+
+local watermarkLabel = Window:SideBarLabel({
+    Title = "PROTON HUB",
+    Icon = "atom",
+})
+
+local tierLabel = Window:SideBarButton({
+    Title = "TIER: Proton",
+    Icon = "hand-platter",
+    Callback = function()
+    end
+})
+
+local homeTab = Window:Tab({
+    Title = gradient("Home", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "house",
+    Locked = false,
+    Border = true,
+})
+homeTab:Select()
+local mainTab = Window:Tab({
+    Title = gradient("Main", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "text-align-justify",
+    Locked = false,
+    Border = true,
+})
+local rocksTab = Window:Tab({
+    Title = gradient("Glitching", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "mountain",
+    Locked = false,
+    Border = true,
+})
+local rebirthTab = Window:Tab({
+    Title = gradient("Rebirthing", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "geist:refresh-clockwise",
+    Locked = false,
+    Border = true,
+})
+local killsTab = Window:Tab({
+    Title = gradient("Auto Kill", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "skull",
+    Locked = false,
+    Border = true,
+})
+local teleportTab = Window:Tab({
+    Title = gradient("Teleport", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "map-pin",
+    Locked = false,
+    Border = true,
+})
+local statsTab = Window:Tab({
+    Title = gradient("Stats", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "circle-plus",
+    Locked = false,
+    Border = true,
+})
+local miscTab = Window:Tab({
+    Title = gradient("Misc", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "combine",
+    Locked = false,
+    Border = true,
+})
+local creditTab = Window:Tab({
+    Title = gradient("Credits", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "credit-card",
+    Locked = false,
+    Border = true,
+})
+local settingsTab = Window:Tab({
+    Title = gradient("Settings", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Icon = "settings",
+    Locked = false,
+    Border = true,
+})
+
+local displayName = game.Players.LocalPlayer.DisplayName
+local username = game.Players.LocalPlayer.Name
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local thumbType = Enum.ThumbnailType.HeadShot
+local thumbSize = Enum.ThumbnailSize.Size420x420
+local content, isReady = Players:GetUserThumbnailAsync(player.UserId, thumbType, thumbSize)
+
+local welcomeParagraph = homeTab:Paragraph({
+    Title = "Welcome " .. gradient(displayName, Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")) .. " (" .. gradient(username, Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")) .. ")",
+    Desc = "Thanks for using " .. gradient("Proton Hub | Muscle Legends", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")) .. "!",
+    Image = content,
+    ImageSize = 50,
+})
+
+local addParagraph = homeTab:Paragraph({
+    Title = "This is " .. gradient("Proton Hub ", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")) .. "an very new script that is nice for its clean UI and code!",
+    Desc = "Please support us by joining the discord below!",
+})
+
+local discordSection = homeTab:MultiSection({
+    Title = "Discord",
+    Desc = "tuff discord btw",
+    Icon = "geist:logo-discord",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local mainVersionSubTabdS = discordSection:Tab({
+  Title = "Main Version",
+  Desc = "Is the paragraph version. Cooler",
+  Icon = "tally-1",
+  Selected = true,
+})
+
+local secondVersionSubTabdS = discordSection:Tab({
+  Title = "Second Version",
+  Desc = "Is the button version.",
+  Icon = "tally-2",
+})
+
+mainVersionSubTabdS:Paragraph({
+    Title = "Welcome to Proton Hub!",
+    Desc = "Thanks for using Proton Hub, Join our Discord for support and updates.",
+    Thumbnail = "https://raw.githubusercontent.com/toxicity-561/images/refs/heads/main/Screenshot_20251101-105515.png",
+    ThumbnailSize = 160,
+    Buttons = {
+        {
+            Title = "Join Discord",
+            Icon = "geist:logo-discord",
+            Callback = function()
+                if setclipboard then
+                    setclipboard("https://discord.gg/zFgkDf9ECq")
+                end
+            end
+        }
+    }
+})
+
+secondVersionSubTabdS:Button({
+    Title = gradient("Click Here to Copy", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")),
+    Desc = "Copies our " .. gradient("discord link", Color3.fromHex("#bb69d6"), Color3.fromHex("#60d8ad")) .. " to your clipboard",
+    Locked = false,
+    Callback = function()
+      setclipboard("https://discord.gg/zFgkDf9ECq")
+    end
+})
+
+local configsSection = homeTab:MultiSection({
+    Title = "Configs",
+    Desc = "Be able to change user speed and etc",
+    Icon = "settings",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local localPlayerSeccS = configsSection:Tab({
+  Title = "Local Player",
+  Desc = "Has speed changer, inf jumps and no clip",
+  Icon = "user",
+  Selected = true,
+})
+
+local changeSizeSeccS = configsSection:Tab({
+  Title = "Change Size",
+  Desc = "Allows changes from 1-100",
+  Icon = "expand",
+})
+
+local uISeccS = configsSection:Tab({
+  Title = "Add UI",
+  Desc = "UI Addons which include fps and ping counter",
+  Icon = "geist:picture-in-picture",
+})
+
+local speedValueInput = localPlayerSeccS:Input({
+    Title = "Input Speed Value",
+    Desc = "",
+    Value = "",
+    InputIcon = "",
+    Type = "Input",
+    Placeholder = "Enter speed value...",
+    Callback = function(input) 
+        local speed = tonumber(input)
+        if speed then
+            local player = game.Players.LocalPlayer
+            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = speed
+                print("text entered: " .. input)
+            else
+                print("Humanoid not found")
+            end
+        else
+            print("Invalid speed value")
+        end
+    end
+})
+
+local setspeedvalueToggle = localPlayerSeccS:Toggle({
+    Title = "Set Speed Value",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(state) 
+        local player = game.Players.LocalPlayer
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if state then
+                local speed = tonumber(speedValueInput.Value) or 16
+                humanoid.WalkSpeed = speed
+            else
+                humanoid.WalkSpeed = 16
+            end
+            print("Toggle Activated: " .. tostring(state))
+        else
+            print("Humanoid not found")
+        end
+    end
+})
+
+local infJumpsToggle = localPlayerSeccS:Toggle({
+    Title = "Infinite Jumps",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(state) 
+        local player = game.Players.LocalPlayer
+        if state then
+            local connection
+            connection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end)
+            infJumpsToggle.Connection = connection
+            print("Toggle Activated: " .. tostring(state))
+        else
+            if infJumpsToggle.Connection then
+                infJumpsToggle.Connection:Disconnect()
+                infJumpsToggle.Connection = nil
+            end
+            print("Toggle Activated: " .. tostring(state))
+        end
+    end
+})
+
+local noclipToggle = localPlayerSeccS:Toggle({
+    Title = "No Clip",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(state) 
+        local player = game.Players.LocalPlayer
+        if state then
+            local connection
+            connection = game:GetService("RunService").Stepped:Connect(function()
+                if player.Character then
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+            noclipToggle.Connection = connection
+            print("Toggle Activated: " .. tostring(state))
+        else
+            if noclipToggle.Connection then
+                noclipToggle.Connection:Disconnect()
+                noclipToggle.Connection = nil
+            end
+            print("Toggle Activated: " .. tostring(state))
+        end
+    end
+})
+
+local sizing = "2"
+
+local enterSizeInput = changeSizeSeccS:Input({
+  Title = "Enter Size",
+  Desc = "Enter into any size ranging from 1-100",
+  Value = sizing,
+  Type = "Input",
+  Placeholder = "Enter size...",
+  Callback = function(input)
+    sizing = input
+    if _G.AutoSize then
+      game:GetService('ReplicatedStorage').rEvents.changeSpeedSizeRemote:InvokeServer('changeSize', tonumber(sizing))
+    end
+  end
+})
+
+local autoSetSizeToggle = changeSizeSeccS:Toggle({
+  Title = "Auto Set Size",
+  Desc = "This automactially sets your size to your certain value and stays stuck in it",
+  Value = false,
+  Callback = function(state)
+    _G.AutoSize = state
+    while _G.AutoSize do
+      game:GetService('ReplicatedStorage').rEvents.changeSpeedSizeRemote:InvokeServer('changeSize', tonumber(sizing))
+      task.wait(0.1)
+    end
+  end
+})
+
+local fpsGui
+local pingGui
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
+local function clamp(v, mn, mx) return math.max(mn, math.min(mx, v)) end
+
+local function makeDraggable(frame)
+	local dragging, dragStart, startPos = false, nil, nil
+
+	frame.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1
+			or i.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = i.Position
+			startPos = frame.Position
+		end
+	end)
+
+	frame.InputEnded:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1
+			or i.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(i)
+		if not dragging then return end
+		if i.UserInputType == Enum.UserInputType.MouseMovement
+			or i.UserInputType == Enum.UserInputType.Touch then
+			local d = i.Position - dragStart
+			local vp = workspace.CurrentCamera.ViewportSize
+			local fw = frame.AbsoluteSize.X
+			local fh = frame.AbsoluteSize.Y
+			local nx = clamp(startPos.X.Offset + d.X, 0, vp.X - fw)
+			local ny = clamp(startPos.Y.Offset + d.Y, 0, vp.Y - fh)
+			frame.Position = UDim2.new(0, nx, 0, ny)
+		end
+	end)
+end
+
+local function scaleOffset(px, py)
+	local vp = workspace.CurrentCamera.ViewportSize
+	local s = math.min(vp.X, vp.Y) / 400
+	return px * s, py * s
+end
+
+local fpsToggle = uISeccS:Toggle({
+	Title = "FPS Counter",
+	Desc = "",
+	Icon = "check",
+	Type = "Checkbox",
+	Value = false,
+	Callback = function(state)
+		if state then
+			if fpsGui and fpsGui.Parent then
+				fpsGui.Enabled = true
+				return
+			end
+
+			fpsGui = Instance.new("ScreenGui")
+			fpsGui.Name = "FPS_Counter"
+			fpsGui.ResetOnSpawn = false
+			fpsGui.DisplayOrder = 9999
+			fpsGui.IgnoreGuiInset = true
+			pcall(function() fpsGui.Parent = CoreGui end)
+			if not fpsGui.Parent then
+				fpsGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+			end
+
+			local vp = workspace.CurrentCamera.ViewportSize
+			local s = math.min(vp.X, vp.Y) / 400
+			local fw, fh = math.floor(110 * s), math.floor(32 * s)
+
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.new(0, fw, 0, fh)
+			frame.Position = UDim2.new(0, 12, 0, 12)
+			frame.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
+			frame.BackgroundTransparency = 0.1
+			frame.BorderSizePixel = 0
+			frame.Parent = fpsGui
+
+			local corner = Instance.new("UICorner", frame)
+			corner.CornerRadius = UDim.new(0, math.floor(8 * s))
+
+			local stroke = Instance.new("UIStroke", frame)
+			stroke.Color = Color3.fromRGB(80, 80, 100)
+			stroke.Thickness = 1
+			stroke.Transparency = 0.4
+
+			local dot = Instance.new("Frame")
+			dot.Size = UDim2.new(0, math.floor(8 * s), 0, math.floor(8 * s))
+			dot.AnchorPoint = Vector2.new(0, 0.5)
+			dot.Position = UDim2.new(0, math.floor(8 * s), 0.5, 0)
+			dot.BackgroundColor3 = Color3.fromRGB(72, 255, 120)
+			dot.BorderSizePixel = 0
+			dot.Parent = frame
+			Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.new(1, -math.floor(20 * s), 1, 0)
+			label.Position = UDim2.new(0, math.floor(20 * s), 0, 0)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.fromRGB(230, 230, 240)
+			label.Font = Enum.Font.GothamBold
+			label.TextScaled = true
+			label.Text = "FPS: --"
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.Parent = frame
+
+			makeDraggable(frame)
+
+			local last = tick()
+			local smooth = 1 / 60
+			local timer = 0
+			local interval = 0.12
+
+			RunService.RenderStepped:Connect(function()
+				if not fpsGui or not fpsGui.Enabled then return end
+				local now = tick()
+				local dt = now - last
+				last = now
+				smooth = smooth * 0.87 + dt * 0.13
+				timer = timer + dt
+				if timer >= interval then
+					timer = 0
+					local f = math.floor(1 / smooth + 0.5)
+					label.Text = "FPS: " .. f
+					if f >= 55 then
+						dot.BackgroundColor3 = Color3.fromRGB(72, 255, 120)
+					elseif f >= 30 then
+						dot.BackgroundColor3 = Color3.fromRGB(255, 200, 80)
+					else
+						dot.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+					end
+				end
+			end)
+		else
+			if fpsGui then fpsGui.Enabled = false end
+		end
+	end
+})
+
+local pingToggle = uISeccS:Toggle({
+	Title = "Ping Counter & Graph",
+	Desc = "",
+	Icon = "check",
+	Type = "Checkbox",
+	Value = false,
+	Callback = function(state)
+		if state then
+			if pingGui and pingGui.Parent then
+				pingGui.Enabled = true
+				return
+			end
+
+			pingGui = Instance.new("ScreenGui")
+			pingGui.Name = "PingGraph"
+			pingGui.ResetOnSpawn = false
+			pingGui.DisplayOrder = 9999
+			pingGui.IgnoreGuiInset = true
+			pcall(function() pingGui.Parent = CoreGui end)
+			if not pingGui.Parent then
+				pingGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+			end
+
+			local vp = workspace.CurrentCamera.ViewportSize
+			local s = math.min(vp.X, vp.Y) / 400
+			local fw = math.floor(180 * s)
+			local fh = math.floor(70 * s)
+
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.new(0, fw, 0, fh)
+			frame.Position = UDim2.new(0, 12, 0, math.floor(52 * s))
+			frame.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
+			frame.BackgroundTransparency = 0.1
+			frame.BorderSizePixel = 0
+			frame.Parent = pingGui
+
+			local corner = Instance.new("UICorner", frame)
+			corner.CornerRadius = UDim.new(0, math.floor(10 * s))
+
+			local stroke = Instance.new("UIStroke", frame)
+			stroke.Color = Color3.fromRGB(80, 80, 100)
+			stroke.Thickness = 1
+			stroke.Transparency = 0.4
+
+			local headerH = math.floor(22 * s)
+
+			local dot = Instance.new("Frame")
+			dot.Size = UDim2.new(0, math.floor(7 * s), 0, math.floor(7 * s))
+			dot.AnchorPoint = Vector2.new(0, 0.5)
+			dot.Position = UDim2.new(0, math.floor(7 * s), 0, math.floor(headerH * 0.5))
+			dot.BackgroundColor3 = Color3.fromRGB(72, 255, 120)
+			dot.BorderSizePixel = 0
+			dot.Parent = frame
+			Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.new(1, -math.floor(18 * s), 0, headerH)
+			label.Position = UDim2.new(0, math.floor(18 * s), 0, 0)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.fromRGB(230, 230, 240)
+			label.Font = Enum.Font.GothamBold
+			label.TextScaled = true
+			label.Text = "Ping: -- ms"
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.Parent = frame
+
+			local divider = Instance.new("Frame")
+			divider.Size = UDim2.new(1, -math.floor(10 * s), 0, 1)
+			divider.Position = UDim2.new(0, math.floor(5 * s), 0, headerH)
+			divider.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+			divider.BackgroundTransparency = 0.3
+			divider.BorderSizePixel = 0
+			divider.Parent = frame
+
+			local graph = Instance.new("Frame")
+			graph.Size = UDim2.new(1, -math.floor(6 * s), 0, fh - headerH - math.floor(6 * s))
+			graph.Position = UDim2.new(0, math.floor(3 * s), 0, headerH + math.floor(3 * s))
+			graph.BackgroundTransparency = 1
+			graph.ClipsDescendants = true
+			graph.Parent = frame
+
+			makeDraggable(frame)
+
+			local points = {}
+			local maxBars = 40
+			local lastPing = tick()
+			local interval = 0.15
+			local pingTimer = 0
+
+			local function addBar(ms)
+				if #points >= maxBars then
+					points[1]:Destroy()
+					table.remove(points, 1)
+				end
+				local gw = graph.AbsoluteSize.X
+				local gh = graph.AbsoluteSize.Y
+				local barW = math.max(2, math.floor(gw / maxBars) - 1)
+				local barH = math.clamp(math.floor(ms / 200 * gh), 2, gh)
+				local col
+				if ms <= 80 then
+					col = Color3.fromRGB(72, 255, 120)
+				elseif ms <= 140 then
+					col = Color3.fromRGB(255, 200, 50)
+				else
+					col = Color3.fromRGB(255, 80, 80)
+				end
+				for idx, b in ipairs(points) do
+					b.Position = UDim2.new(0, (idx - 1) * (barW + 1), 1, 0)
+				end
+				local bar = Instance.new("Frame")
+				bar.AnchorPoint = Vector2.new(0, 1)
+				bar.Size = UDim2.new(0, barW, 0, barH)
+				bar.Position = UDim2.new(0, #points * (barW + 1), 1, 0)
+				bar.BackgroundColor3 = col
+				bar.BorderSizePixel = 0
+				bar.Parent = graph
+				Instance.new("UICorner", bar).CornerRadius = UDim.new(0, 1)
+				table.insert(points, bar)
+				dot.BackgroundColor3 = col
+			end
+
+			RunService.Heartbeat:Connect(function(dt)
+				if not pingGui or not pingGui.Enabled then return end
+				pingTimer = pingTimer + dt
+				if pingTimer >= interval then
+					pingTimer = 0
+					local ms = math.floor(Players.LocalPlayer:GetNetworkPing() * 1000 + 0.5)
+					label.Text = "Ping: " .. ms .. " ms"
+					addBar(ms)
+				end
+			end)
+		else
+			if pingGui then pingGui.Enabled = false end
+		end
+	end
+})
+
+local autoFarmSection = mainTab:MultiSection({
+    Title = "Auto Farm",
+    Desc = "Auto farms like essentials",
+    Icon = "compass",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local autoFarmSubTabaFS = autoFarmSection:Tab({
+  Title = "Auto Farm",
+  Desc = "Farms the basics like punch and lifting",
+  Icon = "calendar-sync",
+  Selected = true,
+})
+
+local fastFarmingSubTabaFS = autoFarmSection:Tab({
+  Title = "Fast Farming",
+  Desc = "Farm with instant speed but with only pushups, situps, handstands and weight",
+  Icon = "zap",
+})
+
+local autoEquipmentSubTabaFS = autoFarmSection:Tab({
+  Title = "Auto Equipment",
+  Desc = "Automatically equips things from your inventory when you want",
+  Icon = "dumbbell",
+})
+
+local addonsSubTabaFS = autoFarmSection:Tab({
+  Title = "Addons",
+  Desc = "Add on extra stuff to help the grinding!",
+  Icon = "plus",
+})
+
+local autoLiftState = false
+
+local autoLiftToggle = autoFarmSubTabaFS:Toggle({
+    Title = "Auto Lift",
+    Desc = "Works with any tool or equipment, just not treadmills nor rocks",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        autoLiftState = state
+        if state then
+            task.spawn(function()
+                while autoLiftState do
+                    game.Players.LocalPlayer:WaitForChild("muscleEvent"):FireServer("rep")
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+autoFarmSubTabaFS:Divider()
+
+local attackSpeed = "Normal"
+local autoPunchState = false
+
+local chooseAttackSpeedDropdown = autoFarmSubTabaFS:Dropdown({
+    Title = "Choose Speed",
+    Desc = "",
+    Values = {
+        {Title = "Normal", Icon = "stretch-horizontal"},
+        {Title = "Medium", Icon = "fast-forward"},
+        {Title = "Fast", Icon = "zap"}
+    },
+    Value = "Normal",
+    Callback = function(value)
+        attackSpeed = value.Title
+    end
+})
+
+local function getAttackTime()
+    if attackSpeed == "Fast" then
+        return 0
+    elseif attackSpeed == "Medium" then
+        return 0.15
+    else
+        return 0.35
+    end
+end
+
+local autoPunchToggle = autoFarmSubTabaFS:Toggle({
+    Title = "Auto Punch",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        autoPunchState = state
+        if state then
+            task.spawn(function()
+                while autoPunchState do
+                    local player = game.Players.LocalPlayer
+                    local char = game.Workspace:FindFirstChild(player.Name)
+                    local punchTool = player.Backpack:FindFirstChild("Punch") or (char and char:FindFirstChild("Punch"))
+                    if punchTool then
+                        if punchTool.Parent ~= char then
+                            punchTool.Parent = char
+                            task.wait(0.1)
+                        end
+                        local attackTime = punchTool:FindFirstChild("attackTime")
+                        if attackTime then
+                            attackTime.Value = getAttackTime()
+                        end
+                        punchTool:Activate()
+                    else
+                        autoPunchState = false
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+local repSpeed = "Normal"
+local fastWeightState = false
+local fastPushupState = false
+local fastSitupState = false
+local fastHandstandState = false
+
+local chooseRepSpeedDropdown = fastFarmingSubTabaFS:Dropdown({
+    Title = "Choose Rep Speed",
+    Desc = "",
+    Values = {
+        {Title = "Normal", Icon = "stretch-horizontal"},
+        {Title = "Fast", Icon = "zap"}
+    },
+    Value = "Normal",
+    Callback = function(value)
+        repSpeed = value.Title
+    end
+})
+
+local function getRepTime()
+    return repSpeed == "Fast" and 0 or 1
+end
+
+local fastWeightToggle = fastFarmingSubTabaFS:Toggle({
+    Title = "Auto Weight",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        fastWeightState = state
+        if state then
+            task.spawn(function()
+                while fastWeightState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Weight") or (char and char:FindFirstChild("Weight"))
+                    if tool then
+                        if tool.Parent ~= char then
+                            tool.Parent = char
+                            task.wait(0.1)
+                        end
+                        local repTime = tool:FindFirstChild("repTime")
+                        if repTime then
+                            repTime.Value = getRepTime()
+                        end
+                        tool:Activate()
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+local fastPushupToggle = fastFarmingSubTabaFS:Toggle({
+    Title = "Auto Pushups",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        fastPushupState = state
+        if state then
+            task.spawn(function()
+                while fastPushupState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Pushups") or (char and char:FindFirstChild("Pushups"))
+                    if tool then
+                        if tool.Parent ~= char then
+                            tool.Parent = char
+                            task.wait(0.1)
+                        end
+                        local repTime = tool:FindFirstChild("repTime")
+                        if repTime then
+                            repTime.Value = getRepTime()
+                        end
+                        tool:Activate()
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+local fastSitupToggle = fastFarmingSubTabaFS:Toggle({
+    Title = "Auto Situps",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        fastSitupState = state
+        if state then
+            task.spawn(function()
+                while fastSitupState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Situps") or (char and char:FindFirstChild("Situps"))
+                    if tool then
+                        if tool.Parent ~= char then
+                            tool.Parent = char
+                            task.wait(0.1)
+                        end
+                        local repTime = tool:FindFirstChild("repTime")
+                        if repTime then
+                            repTime.Value = getRepTime()
+                        end
+                        tool:Activate()
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+local fastHandstandToggle = fastFarmingSubTabaFS:Toggle({
+    Title = "Auto Handstands",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        fastHandstandState = state
+        if state then
+            task.spawn(function()
+                while fastHandstandState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Handstands") or (char and char:FindFirstChild("Handstands"))
+                    if tool then
+                        if tool.Parent ~= char then
+                            tool.Parent = char
+                            task.wait(0.1)
+                        end
+                        local repTime = tool:FindFirstChild("repTime")
+                        if repTime then
+                            repTime.Value = getRepTime()
+                        end
+                        tool:Activate()
+                    end
+                    task.wait()
+                end
+            end)
+        end
+    end
+})
+
+fastFarmingSubTabaFS:Divider()
+
+fastFarmingSubTabaFS:Paragraph({
+    Title = "Ultra Fast Farming",
+    Desc = "This requires 7 or 8 Chaos Overlord Pack to do this farming!"
+})
+
+local fastFarmUltraToggle = fastFarmingSubTabaFS:Toggle({
+    Title = "Fast Farm",
+    Desc = "Requires 7 or 8 chaos overlord pack!",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+      getgenv().isGrinding = state
+            if state then
+                for _ = 1, 30 do
+                    task.spawn(function()
+                        while getgenv().isGrinding do
+                            game:GetService('Players').LocalPlayer.muscleEvent:FireServer('rep')
+                            task.wait(0.01)
+                        end
+                    end)
+                end
+            end
+    end
+})
+
+local equipWeightState = false
+local equipPushupState = false
+local equipSitupState = false
+local equipHandstandState = false
+
+local function unequip(toolName)
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    if char then
+        local tool = char:FindFirstChild(toolName)
+        if tool then
+            tool.Parent = player.Backpack
+        end
+    end
+end
+
+local equipWeightToggle = autoEquipmentSubTabaFS:Toggle({
+    Title = "Auto Equip Weight",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        equipWeightState = state
+        if state then
+            task.spawn(function()
+                while equipWeightState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Weight")
+                    if tool then tool.Parent = char end
+                    task.wait(0.1)
+                end
+            end)
+        else
+            unequip("Weight")
+        end
+    end
+})
+
+local equipPushupToggle = autoEquipmentSubTabaFS:Toggle({
+    Title = "Auto Equip Pushups",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        equipPushupState = state
+        if state then
+            task.spawn(function()
+                while equipPushupState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Pushups")
+                    if tool then tool.Parent = char end
+                    task.wait(0.1)
+                end
+            end)
+        else
+            unequip("Pushups")
+        end
+    end
+})
+
+local equipSitupToggle = autoEquipmentSubTabaFS:Toggle({
+    Title = "Auto Equip Situps",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        equipSitupState = state
+        if state then
+            task.spawn(function()
+                while equipSitupState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Situps")
+                    if tool then tool.Parent = char end
+                    task.wait(0.1)
+                end
+            end)
+        else
+            unequip("Situps")
+        end
+    end
+})
+
+local equipHandstandToggle = autoEquipmentSubTabaFS:Toggle({
+    Title = "Auto Equip Handstands",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        equipHandstandState = state
+        if state then
+            task.spawn(function()
+                while equipHandstandState do
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local tool = player.Backpack:FindFirstChild("Handstands")
+                    if tool then tool.Parent = char end
+                    task.wait(0.1)
+                end
+            end)
+        else
+            unequip("Handstands")
+        end
+    end
+})
+
+local lockPositionToggle = addonsSubTabaFS:Toggle({
+    Title = "Lock Postion",
+    Desc = "Locks your character in one place ideal for farming in private areas",
+    Icon = "lock",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(Value)
+       if Value then
+        local currentPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        getgenv().posLock = game:GetService("RunService").Heartbeat:Connect(function()
+            local char = game.Players.LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                char.HumanoidRootPart.CFrame = currentPos
+            end
+        end)
+    else
+        if getgenv().posLock then
+            getgenv().posLock:Disconnect()
+            getgenv().posLock = nil
+        end
+    end
+    end
+})
+
+local Code = addonsSubTabaFS:Code({
+    Title = "Reminder",
+    Code = "-- This script isn't the best of all,\n-- as it is still in development.\n-- It will be better from till\n-- now to the future!"
+})
+
+local autoGymSection = mainTab:Section({
+    Title = "Auto Gym",
+    Desc = "Auto farms at any gyms |",
+    Icon = "dumbbell",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local soonVabygymautoParagraph = autoGymSection:Paragraph({
+    Title = "cough cough. awkward...",
+    Desc = "anyways the auto gym kinda broken so I have to fix it soon. When I say soon, I mean never bro",
+    Image = "https://raw.githubusercontent.com/toxicity-561/images/refs/heads/main/Screenshot_20251210-000359.png",
+    ImageSize = 60,
+})
+
+local autoBrawlSection = mainTab:Section({
+    Title = "Auto Brawl",
+    Desc = "Auto brawls for you!",
+    Icon = "hand-fist",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local godModeState = false
+local autoJoinState = false
+
+local godModeToggle = autoBrawlSection:Toggle({
+    Title = "Auto Win Brawl",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        godModeState = state
+        if state then
+            task.spawn(function()
+                while godModeState do
+                    game:GetService("ReplicatedStorage").rEvents.brawlEvent:FireServer("joinBrawl")
+                    task.wait(0)
+                end
+            end)
+        end
+    end
+})
+
+local autoJoinToggle = autoBrawlSection:Toggle({
+    Title = "Auto Join Brawl",
+    Desc = "",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+        autoJoinState = state
+        if state then
+            task.spawn(function()
+                while autoJoinState do
+                    game:GetService("ReplicatedStorage").rEvents.brawlEvent:FireServer("joinBrawl")
+                    task.wait(2)
+                end
+            end)
+        end
+    end
+})
+
+local autoPunchRocksSection = rocksTab:MultiSection({
+    Title = "Auto Punch Rocks",
+    Desc = "Farm durability or use for glitches",
+    Icon = "mountain",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local mostPopularsubTabaPRS = autoPunchRocksSection:Tab({
+  Title = "Most Popular",
+  Desc = "These are 3 most popular used by a lot",
+  Icon = "flame",
+  Selected = true,
+})
+
+local additionalRockssubTabaPRS = autoPunchRocksSection:Tab({
+  Title = "Additional Rocks",
+  Desc = "Extra rocks to farm dura or glitch!",
+  Icon = "circle-plus",
+})
+
+local player = game.Players.LocalPlayer
+
+repeat task.wait() until game:IsLoaded() and player.Character and player.Character:FindFirstChild("Humanoid") and workspace
+
+local ROCK_MODE = "shrink"
+
+local function gettool()
+    local tool = player.Backpack:FindFirstChild("Punch") or player.Character:FindFirstChild("Punch")
+    if tool and tool.Parent ~= player.Character then
+        tool.Parent = player.Character
+        task.wait(0.1)
+    elseif not tool then
+        warn("Punch tool not found in Backpack or Character")
+    end
+    return tool
+end
+
+local function modifyRock(rock)
+    if not rock then return end
+    if ROCK_MODE == "shrink" then
+        rock.Size = rock.Size * 0.1
+    elseif ROCK_MODE == "hide" then
+        rock.Transparency = 1
+        rock.CanCollide = false
+    end
+end
+
+local function farmRocks(neededDurabilityValue)
+    while getgenv().autoFarm do
+        task.wait()
+        local character = player.Character
+        local machinesFolder = workspace:FindFirstChild("machinesFolder")
+        if not character or not machinesFolder then return end
+
+
+        if player.Durability.Value >= neededDurabilityValue then
+            for _, v in pairs(machinesFolder:GetDescendants()) do
+                if v.Name == "neededDurability" and v.Value == neededDurabilityValue then
+                    local rock = v.Parent:FindFirstChild("Rock")
+                    if rock and character:FindFirstChild("LeftHand") and character:FindFirstChild("RightHand") then
+                        local punchTool = gettool()
+                        if punchTool then
+                            player.muscleEvent:FireServer("punch", "rightHand")
+                            player.muscleEvent:FireServer("punch", "leftHand")
+                            firetouchinterest(rock, character.RightHand, 0)
+                            firetouchinterest(rock, character.RightHand, 1)
+                            firetouchinterest(rock, character.LeftHand, 0)
+                            firetouchinterest(rock, character.LeftHand, 1)
+                            modifyRock(rock)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local JungleRock = mostPopularsubTabaPRS:Toggle({
+    Title = "Jungle Rock (10M)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(10000000)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+
+local MuscleKingRock = mostPopularsubTabaPRS:Toggle({
+    Title = "Muscle King Rock (5M)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(5000000)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+
+local LegendRock = mostPopularsubTabaPRS:Toggle({
+    Title = "Legend Rock (1M)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(1000000)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+local InfernoRock = additionalRockssubTabaPRS:Toggle({
+    Title = "Inferno Rock (750K)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(750000)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+
+local MysticRock = additionalRockssubTabaPRS:Toggle({
+    Title = "Mystic Rock (400K)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(400000)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+
+local FrozenRock = additionalRockssubTabaPRS:Toggle({
+    Title = "Frozen Rock (150K)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(150000)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+
+local GoldenRock = additionalRockssubTabaPRS:Toggle({
+    Title = "Golden Rock (5K)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(5000)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+
+local LargeRock = additionalRockssubTabaPRS:Toggle({
+    Title = "Large Rock (100)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            coroutine.wrap(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(100)
+                    end
+                    task.wait(0.1)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then t.Parent = player.Backpack end
+        end
+    end
+})
+
+
+local PunchingRock = additionalRockssubTabaPRS:Toggle({
+    Title = "Punching Rock (10)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+        if state then
+            task.spawn(function()
+                while _G.fastHitActive do
+                    for _ = 1, 10 do
+                        gettool()
+                        farmRocks(10)
+                    end
+                    task.wait(0.01)
+                end
+            end)()
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then
+              t.Parent = player.Backpack
+            end
+        end
+    end
+})
+
+
+local TinyRock = additionalRockssubTabaPRS:Toggle({
+    Title = "Tiny Rock (0)",
+    Value = false,
+    Callback = function(state)
+        _G.fastHitActive = state
+        getgenv().autoFarm = state
+
+        if state then
+            task.spawn(function()
+                while _G.fastHitActive do
+                    gettool()
+                    for _ = 1, 10 do
+                        farmRocks(0)
+                    end
+
+                    task.wait(0.01)
+                end
+            end)
+        else
+            local c = player.Character
+            local t = c and c:FindFirstChild("Punch")
+            if t then
+                t.Parent = player.Backpack
+            end
+        end
+    end
+})
+
+local autorebirthSection = rebirthTab:MultiSection({
+    Title = "Auto Rebirths",
+    Desc = "Auto rebirths you when afk or farming",
+    Icon = "geist:refresh-clockwise",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local regularRebirthingFarmingsubTabarS = autorebirthSection:Tab({
+  Title = "Regular Rebirth Farming",
+  Desc = "Farms rebirth in the simple most way",
+  Icon = "asterisk",
+  Selected = true,
+})
+
+local fastRebirthssubTabarS = autorebirthSection:Tab({
+  Title = "Fast Rebirths",
+  Desc = "Farms rebirths faster than ever. 7 or 8 PACK REQUIRED!!!",
+  Icon = "zap",
+})
+
+local addonsTabarS = autorebirthSection:Tab({
+  Title = "Addons",
+  Desc = "Additional stuff for rebirthing",
+  Icon = "circle-plus",
+})
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+
+local targetRebirths = 1
+local autoRebirthLoop = nil
+
+local targetRebirthInput = regularRebirthingFarmingsubTabarS:Input({
+    Title = "Input Target Rebirth",
+    Desc = "Input any number to rebirth frok that selected rebirth",
+    Value = "",
+    Type = "Input",
+    Placeholder = "Enter rebirth number...",
+    Callback = function(Value)
+        local n = tonumber(Value)
+        targetRebirths = n and n >= 1 and n or 1
+    end
+})
+
+local autoTargetRebirthToggle = regularRebirthingFarmingsubTabarS:Toggle({
+    Title = "Auto Target Rebirth",
+    Desc = "Rebirths and then stops when it is completed",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(State)
+        if State then
+            autoRebirthLoop = task.spawn(function()
+                local leaderstats = LocalPlayer:WaitForChild("leaderstats")
+                local rebirths = leaderstats:WaitForChild("Rebirths")
+                local remote = ReplicatedStorage:WaitForChild("rEvents"):WaitForChild("rebirthRemote")
+                while State do
+                    if rebirths.Value >= targetRebirths then
+                        autoTargetRebirthToggle:SetValue(false)
+                        break
+                    end
+                    pcall(function()
+                        remote:InvokeServer("rebirthRequest")
+                    end)
+                    task.wait(1)
+                end
+            end)
+        else
+            if autoRebirthLoop then
+                task.cancel(autoRebirthLoop)
+                autoRebirthLoop = nil
+            end
+        end
+    end
+})
+
+regularRebirthingFarmingsubTabarS:Space()
+regularRebirthingFarmingsubTabarS:Divider()
+regularRebirthingFarmingsubTabarS:Space()
+
+local autoRebirthinfToggle = regularRebirthingFarmingsubTabarS:Toggle({
+    Title = "Auto Rebirth Infinitely",
+    Desc = "You will rebirth infinitely with no stop",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(State)
+        if State then
+            task.spawn(function()
+                while State do
+                    game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthRemote"):InvokeServer("rebirthRequest")
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+local oopsDidntMeantooParagraph = fastRebirthssubTabarS:Paragraph({
+    Title = "cough cough. awkward...",
+    Desc = "i kinda lost the code to the pack farms...",
+    Image = "https://raw.githubusercontent.com/toxicity-561/images/refs/heads/main/Screenshot_20251210-000359.png",
+    ImageSize = 60,
+})
+
+local autoSizeLoop = nil
+
+local autoSizetwoToggle = addonsTabarS:Toggle({
+    Title = "Auto Size 2",
+    Desc = "Auto resets your size 2 every rebirth",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(State)
+        if State then
+            autoSizeLoop = task.spawn(function()
+                while State do
+                    game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
+                    task.wait()
+                end
+            end)
+        else
+            if autoSizeLoop then
+                task.cancel(autoSizeLoop)
+                autoSizeLoop = nil
+            end
+        end
+    end
+})
+
+local autoTeleportLoop = nil
+
+local autoTpMKToggle = addonsTabarS:Toggle({
+    Title = "Auto Teleport to Muscle King Gym",
+    Desc = "Keeps teleporting you to muscle king, helps with grinding fast rebirths.",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(State)
+        if State then
+            autoTeleportLoop = task.spawn(function()
+                while State do
+                    local player = game.Players.LocalPlayer
+                    if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        player.Character.HumanoidRootPart.CFrame = CFrame.new(-8626, 15, -5730)
+                    end
+                    task.wait()
+                end
+            end)
+        else
+            if autoTeleportLoop then
+                task.cancel(autoTeleportLoop)
+                autoTeleportLoop = nil
+            end
+        end
+    end
+})
+
+local hideFramesToggle = addonsTabarS:Toggle({
+    Title = "Hide Frames",
+    Desc = "Keeps frames away and makes you have smoother grinding and less lag",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(State)
+        local rSto = game:GetService("ReplicatedStorage")
+        for _, obj in pairs(rSto:GetChildren()) do
+            if obj:IsA("Frame") then
+                obj.Visible = not State
+            end
+        end
+    end
+})
+
+local autokillingSection = killsTab:MultiSection({
+    Title = "Auto Killing",
+    Desc = "Farms kills for you",
+    Icon = "skull",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local mainKillingsubTabakS = autokillingSection:Tab({
+  Title = "Main Killing",
+  Desc = "This has the killing which is the main part",
+  Icon = "text-align-justify",
+  Selected = true,
+})
+
+local whitelistsubTabakS = autokillingSection:Tab({
+  Title = "Whitelist",
+  Desc = "Whitelist users you want to",
+  Icon = "circle-plus",
+})
+
+local blacklistsubTabakS = autokillingSection:Tab({
+  Title = "Blacklist",
+  Desc = "Blacklist users you want to",
+  Icon = "circle-minus",
+})
+
+local aurasubTabakS = autokillingSection:Tab({
+  Title = "Aura",
+  Desc = "In a span of a circle you kill anyone",
+  Icon = "scan-eye",
+})
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local whitelist = {}
+local blacklist = {}
+
+local function getPlayerOptions()
+    local options = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        local success, thumb = pcall(function()
+            return Players:GetUserThumbnailAsync(plr.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        end)
+        local icon = success and thumb or ""
+        table.insert(options, {
+            Title = plr.Name,
+            Icon = icon
+        })
+    end
+    return options
+end
+
+local whitelistPlayersDropdown = whitelistsubTabakS:Dropdown({
+    Title = "Choose Whitelisted Players",
+    Desc = "Whitelist the players you don't want to kill",
+    Values = getPlayerOptions(),
+    Multi = true,
+    Callback = function(option) end
+})
+
+local whitelistPlayerButton = whitelistsubTabakS:Button({
+    Title = "Whitelist the players",
+    Desc = "Use this to make sure they get whitelisted",
+    Icon = "circle-plus",
+    Locked = false,
+    Callback = function()
+        for _, selected in ipairs(whitelistPlayersDropdown.Selected or {}) do
+            local name = selected.Title or selected
+            whitelist[name] = true
+        end
+    end
+})
+
+local blacklistPlayersDropdown = blacklistsubTabakS:Dropdown({
+    Title = "Choose Blacklisted Players",
+    Desc = "Blacklist the players you want to kill",
+    Values = getPlayerOptions(),
+    Multi = true,
+    Callback = function(option) end
+})
+
+local blacklistPlayerButton = blacklistsubTabakS:Button({
+    Title = "Blacklist the players",
+    Desc = "Use this to make sure they get blacklisted",
+    Icon = "circle-minus",
+    Locked = false,
+    Callback = function()
+        for _, selected in ipairs(blacklistPlayersDropdown.Selected or {}) do
+            local name = selected.Title or selected
+            blacklist[name] = true
+        end
+    end
+})
+
+local function updateDropdowns()
+    local options = getPlayerOptions()
+    whitelistPlayersDropdown:Refresh(options)
+    blacklistPlayersDropdown:Refresh(options)
+end
+
+updateDropdowns()
+
+Players.PlayerAdded:Connect(updateDropdowns)
+Players.PlayerRemoving:Connect(updateDropdowns)
+
+local autoKillActive = false
+
+local autoKillToggle = mainKillingsubTabakS:Toggle({
+    Title = "Auto Kill All",
+    Desc = "Auto kills everyone",
+    Icon = "",
+    Type = "Toggle",
+    Default = false,
+    Callback = function(State)
+        autoKillActive = State
+
+        if State then
+            task.spawn(function()
+                while autoKillActive do
+                    local char = LocalPlayer.Character
+                    if not char then
+                        char = LocalPlayer.CharacterAdded:Wait()
+                    end
+
+                    local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch") or char:FindFirstChild("Punch")
+                    if punchTool then
+                        if punchTool.Parent ~= char then
+                            punchTool.Parent = char
+                            task.wait(0.1)
+                        end
+
+                        local attackTime = punchTool:FindFirstChild("attackTime")
+                        if attackTime then
+                            attackTime.Value = 0
+                        end
+
+                        punchTool:Activate()
+                    else
+                        autoKillToggle:Set(false)
+                        autoKillActive = false
+                        break
+                    end
+
+                    for _, target in ipairs(Players:GetPlayers()) do
+                        if target ~= LocalPlayer then
+                            local shouldKill = blacklist[target.Name] or not whitelist[target.Name]
+
+                            if shouldKill then
+                                local root = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                                local rHand = char:FindFirstChild("RightHand")
+                                local lHand = char:FindFirstChild("LeftHand")
+                                if root and rHand and lHand then
+                                    firetouchinterest(rHand, root, 1)
+                                    firetouchinterest(lHand, root, 1)
+                                    firetouchinterest(rHand, root, 0)
+                                    firetouchinterest(lHand, root, 0)
+                                end
+                            end
+                        end
+                    end
+
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+mainKillingsubTabakS:Space()
+mainKillingsubTabakS:Divider()
+mainKillingsubTabakS:Space()
+
+local targetPlayerName = nil
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local autoPlayerInput = mainKillingsubTabakS:Input({
+    Title = "Input Player Name",
+    Desc = "Input players exact username or display name to kill them",
+    Value = "",
+    InputIcon = "",
+    Type = "Input",
+    Placeholder = "Enter player name...",
+    Callback = function(input)
+        targetPlayerName = input
+    end
+})
+
+local autoKillPlayerToggle = mainKillingsubTabakS:Toggle({
+    Title = "Auto Kill Targeted Person",
+    Desc = "Auto kills the person you wanted to kill",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(State)
+        task.spawn(function()
+            while State do
+                local player = LocalPlayer
+                local target = Players:FindFirstChild(targetPlayerName)
+                if target and target ~= player then
+                    local char = player.Character
+                    local root = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                    local rHand = char and char:FindFirstChild("RightHand")
+                    local lHand = char and char:FindFirstChild("LeftHand")
+                    if root and rHand and lHand then
+                        firetouchinterest(rHand, root, 1)
+                        firetouchinterest(lHand, root, 1)
+                        firetouchinterest(rHand, root, 0)
+                        firetouchinterest(lHand, root, 0)
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local currentRadius = 90
+
+local function gettool()
+    local character = LocalPlayer.Character
+    local backpack = LocalPlayer.Backpack
+    if not (character and backpack) then return false end
+    local tool = backpack:FindFirstChild("Punch")
+    if not tool then return false end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid:EquipTool(tool)
+        return true
+    end
+    return false
+end
+
+local auraSizeSlider = aurasubTabakS:Slider({
+    Title = "Change Aura Size",
+    Desc = "Change the size of your aura circle",
+    Step = 1,
+    Value = {
+        Min = 1,
+        Max = 500,
+        Default = 90,
+    },
+    Callback = function(Value)
+        currentRadius = Value
+    end
+})
+
+local auraKillToggle = aurasubTabakS:Toggle({
+    Title = "Aura Kill",
+    Desc = "Different type of killing, when someone gets into your radius they teleport and you kill them quick",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(State)
+        getgenv().killNearby = State
+        local radiusVisual = Instance.new("CylinderHandleAdornment")
+        radiusVisual.Adornee = nil
+        radiusVisual.Color3 = Color3.fromRGB(50, 50, 200)
+        radiusVisual.Transparency = 0.6
+        radiusVisual.ZIndex = 0
+        radiusVisual.Radius = 0
+        radiusVisual.Height = 0.2
+        radiusVisual.AlwaysOnTop = false
+        radiusVisual.Parent = workspace
+
+        local orbs = {}
+        for i = 1, 12 do
+            local orb = Instance.new("Part")
+            orb.Shape = Enum.PartType.Ball
+            orb.Size = Vector3.new(0.5, 0.5, 0.5)
+            orb.Anchored = true
+            orb.CanCollide = false
+            orb.Material = Enum.Material.Neon
+            orb.Color = Color3.fromRGB(0, 150, 255)
+            orb.Parent = workspace
+            table.insert(orbs, orb)
+        end
+
+        task.spawn(function()
+            local angle = 0
+            while getgenv().killNearby do
+                local myCharacter = LocalPlayer.Character
+                local myRoot = myCharacter and myCharacter:FindFirstChild("HumanoidRootPart")
+                local myLeftHand = myCharacter and myCharacter:FindFirstChild("LeftHand")
+                if myRoot and myLeftHand then
+                    radiusVisual.Adornee = myRoot
+                    radiusVisual.Radius = currentRadius
+                    radiusVisual.CFrame = CFrame.new(0, -2, 0)
+
+                    for i, orb in ipairs(orbs) do
+                        local orbAngle = math.rad((i / #orbs) * 360) + angle
+                        local x = math.cos(orbAngle) * currentRadius
+                        local z = math.sin(orbAngle) * currentRadius
+                        orb.CFrame = myRoot.CFrame * CFrame.new(x, 0.5, z)
+                    end
+                    angle = angle + 0.05
+
+                    gettool()
+                    local muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
+                    if muscleEvent then
+                        muscleEvent:FireServer("punch", "rightHand")
+                        muscleEvent:FireServer("punch", "leftHand")
+                    end
+                    for _, player in pairs(Players:GetPlayers()) do
+                        if player ~= LocalPlayer then
+                            local char = player.Character
+                            local root = char and char:FindFirstChild("HumanoidRootPart")
+                            local head = char and char:FindFirstChild("Head")
+                            if root and head then
+                                local distance = (root.Position - myRoot.Position).Magnitude
+                                if distance <= currentRadius then
+                                    head.CFrame = myLeftHand.CFrame
+                                    for _, part in pairs(char:GetDescendants()) do
+                                        if part:IsA("BasePart") and part.Name == "Handle" then
+                                            part.CFrame = myLeftHand.CFrame
+                                        end
+                                    end
+                                    local sweatPart = char:FindFirstChild("sweatPart")
+                                    if sweatPart then
+                                        sweatPart.CFrame = myLeftHand.CFrame
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(0.05)
+            end
+            radiusVisual:Destroy()
+            for _, orb in ipairs(orbs) do
+                orb:Destroy()
+            end
+        end)
+    end
+})
+
+local teleportSec = teleportTab:Section({
+    Title = "Advanced Teleports",
+    Desc = "This has advanced teleporting to places and people",
+    Icon = "map-pin",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local teleportToAreaSec = teleportSec:Section({
+    Title = "Teleport to Area",
+    Icon = "land-plot",
+    Box = true,
+    BoxBorder = true,
+    Opened = false,
+})
+
+local TweenService = game:GetService("TweenService")
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local locations = {
+    ["Tiny Island"] = Vector3.new(-34.833778381347656, 7.535726547241211, 1882.3487548828125),
+    ["Starter Island"] = Vector3.new(-39.778141021728516, 7.382498741149902, 164.24920654296879),
+    ["Beach"] = Vector3.new(4.4908833503723145, 7.382500648498535, -370.3563537597656),
+    ["Frost Gym"] = Vector3.new(-2631.5400390625, 7.382497787475586, -399.8075256347656),
+    ["Mythical Gym"] = Vector3.new(2250.778076171875, 7.382497310638428, 1073.2266845703125),
+    ["Inferno Gym"] = Vector3.new(-6758.9638671875, 7.382511615753174, -1284.918701171875),
+    ["Legends Gym"] = Vector3.new(4603.28173828125, 991.560546875, -3897.86572265625),
+    ["Muscle King"] = Vector3.new(-8625.9326171875, 17.232524871826172, -5730.47314453125),
+    ["Jungle Gym"] = Vector3.new(-8685.62109375, 6.811502933502197, 2392.32666015625),
+    ["Lava Brawl"] = Vector3.new(4466.83837890625, 16.832529067993164, -8848.7451171875),
+    ["Desert Brawl"] = Vector3.new(985.3681640625, 17.232528686523438, -7457.43310546875),
+    ["Boxing Brawl"] = Vector3.new(-1868.568359375, 17.232528686523438, -6315.73486328125),
+    ["Secret"] = Vector3.new(1950.8814697265625, 1.8605183362960815, 6184.2705078125)
+}
+
+local selectedArea = "Main Gym"
+local selectedMethod = "Teleport [INSTANT]"
+local tweenSpeed = 400
+
+local teleportToWhereDropdown = teleportToAreaSec:Dropdown({
+    Title = "Choose Area",
+    Values = {"Tiny Island", "Starter Island", "Beach", "Frost Gym", "Mythical Gym",
+        "Inferno Gym", "Legends Gym", "Muscle King", "Jungle Gym", "Lava Brawl",
+        "Desert Brawl", "Boxing Brawl", "Secret"},
+    Value = selectedArea,
+    Callback = function(option)
+        selectedArea = option
+    end
+})
+
+local teleportMethodDropdown = teleportToAreaSec:Dropdown({
+    Title = "Teleport Method",
+    Values = {"Teleport [INSTANT]", "Tweening"},
+    Value = selectedMethod,
+    Callback = function(option)
+        selectedMethod = option
+    end
+})
+
+local tweeningSpeedSlider = teleportToAreaSec:Slider({
+    Title = "Tweening Speed",
+    Value = {
+      Min = 400,
+      Max = 3000,
+      Default = tweenSpeed,
+    },
+    Step = 1,
+    Callback = function(value)
+        tweenSpeed = value
+    end
+})
+
+local teleportToAreaButton = teleportToAreaSec:Button({
+    Title = "Teleport To Area",
+    Desc = "Make sure to edit the stuff the way you want it!",
+    Callback = function()
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        local targetPos = locations[selectedArea]
+        if not targetPos then return end
+        if selectedMethod == "Teleport [INSTANT]" then
+            hrp.CFrame = CFrame.new(targetPos)
+        else
+            local humanoid = character:WaitForChild("Humanoid")
+            local startCFrame = hrp.CFrame
+            local distance = (hrp.Position - targetPos).Magnitude
+            local tweenInfo = TweenInfo.new(
+                distance / tweenSpeed,
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.InOut,
+                0,
+                false,
+                0
+            )
+            hrp.Anchored = true
+            humanoid.PlatformStand = true
+            local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
+            tween:Play()
+            tween.Completed:Connect(function()
+                hrp.CFrame = CFrame.new(targetPos)
+                hrp.Anchored = false
+                humanoid.PlatformStand = false
+            end)
+            tween.Completed:Wait()
+        end
+    end
+})
+
+local statsSection = statsTab:MultiSection({
+    Title = "Tracking of Stats",
+    Desc = "Track your own stats",
+    Icon = "chart-network",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local gainedStatssubTabsS = statsSection:Tab({
+  Title = "Gained Stats",
+  Desc = "See your stats gained",
+  Icon = "arrow-up-from-line",
+})
+
+local currentStatssubTabsS = statsSection:Tab({
+  Title = "Current Stats",
+  Desc = "See your current stats",
+  Icon = "minus",
+  Selected = true,
+})
+
+local function abbreviateNumber(value)
+    if value >= 1e15 then
+        return string.format("%.1fQa", value / 1e15)
+    elseif value >= 1e12 then
+        return string.format("%.1fT", value / 1e12)
+    elseif value >= 1e9 then
+        return string.format("%.1fB", value / 1e9)
+    elseif value >= 1e6 then
+        return string.format("%.1fM", value / 1e6)
+    elseif value >= 1e3 then
+        return string.format("%.1fK", value / 1e3)
+    else
+        return tostring(value)
+    end
+end
+
+local statsGainedParagraph = gainedStatssubTabsS:Paragraph({
+    Title = "Stats Gained Currently Since Joining Server",
+    Desc = "Waiting...",
+})
+
+local function createMyParagraphStats()
+    local player = game.Players.LocalPlayer
+    if not player then return end
+
+    local leaderstats = player:WaitForChild("leaderstats")
+    local strengthStat = leaderstats:WaitForChild("Strength")
+    local killsStat = leaderstats:WaitForChild("Kills")
+    local durabilityStat = player:WaitForChild("Durability")
+    local agilityStat = player:WaitForChild("Agility")
+    local evilKarmaStat = player:WaitForChild("evilKarma")
+    local goodKarmaStat = player:WaitForChild("goodKarma")
+
+    local initialStrength = strengthStat.Value
+    local initialDurability = durabilityStat.Value
+    local initialAgility = agilityStat.Value
+    local initialKills = killsStat.Value
+    local initialEvilKarma = evilKarmaStat.Value
+    local initialGoodKarma = goodKarmaStat.Value
+
+    local startTime = tick()
+
+    local function updateStatsDesc()
+        local strengthGained = abbreviateNumber(strengthStat.Value - initialStrength)
+        local durabilityGained = abbreviateNumber(durabilityStat.Value - initialDurability)
+        local agilityGained = abbreviateNumber(agilityStat.Value - initialAgility)
+        local killsGained = abbreviateNumber(killsStat.Value - initialKills)
+        local evilKarmaGained = abbreviateNumber(evilKarmaStat.Value - initialEvilKarma)
+        local goodKarmaGained = abbreviateNumber(goodKarmaStat.Value - initialGoodKarma)
+
+        local timeSpent = tick() - startTime
+        local minutes = math.floor(timeSpent / 60)
+        local seconds = math.floor(timeSpent % 60)
+        local timeString = string.format("%02d:%02d", minutes, seconds)
+
+        local desc = string.format(
+            "Time Spent: %s\nStrength Gained: %s\nDurability Gained: %s\nAgility Gained: %s\nKills Gained: %s\nEvil Karma Gained: %s\nGood Karma Gained: %s",
+            timeString, strengthGained, durabilityGained, agilityGained, killsGained, evilKarmaGained, goodKarmaGained
+        )
+
+        statsGainedParagraph:SetDesc(desc)
+    end
+
+    strengthStat.Changed:Connect(updateStatsDesc)
+    durabilityStat.Changed:Connect(updateStatsDesc)
+    agilityStat.Changed:Connect(updateStatsDesc)
+    killsStat.Changed:Connect(updateStatsDesc)
+    evilKarmaStat.Changed:Connect(updateStatsDesc)
+    goodKarmaStat.Changed:Connect(updateStatsDesc)
+
+    game:GetService("RunService").Heartbeat:Connect(updateStatsDesc)
+
+    updateStatsDesc()
+end
+
+createMyParagraphStats()
+
+local function abbreviateNumber(value)
+    if value >= 1e15 then
+        return string.format("%.1fQa", value / 1e15)
+    elseif value >= 1e12 then
+        return string.format("%.1fT", value / 1e12)
+    elseif value >= 1e9 then
+        return string.format("%.1fB", value / 1e9)
+    elseif value >= 1e6 then
+        return string.format("%.1fM", value / 1e6)
+    elseif value >= 1e3 then
+        return string.format("%.1fK", value / 1e3)
+    else
+        return tostring(value)
+    end
+end
+
+local statsCurrentParagraph = currentStatssubTabsS:Paragraph({
+    Title = "Current Stats",
+    Desc = "Loading...",
+})
+
+local function createCurrentStatsParagraph()
+    local player = game.Players.LocalPlayer
+    if not player then return end
+
+    local leaderstats = player:WaitForChild("leaderstats")
+    local strengthStat = leaderstats:WaitForChild("Strength")
+    local killsStat = leaderstats:WaitForChild("Kills")
+    local durabilityStat = player:WaitForChild("Durability")
+    local agilityStat = player:WaitForChild("Agility")
+    local evilKarmaStat = player:WaitForChild("evilKarma")
+    local goodKarmaStat = player:WaitForChild("goodKarma")
+
+    local function updateStatsDesc()
+        local desc = string.format(
+            "Strength: %s\nDurability: %s\nAgility: %s\nKills: %s\nEvil Karma: %s\nGood Karma: %s",
+            abbreviateNumber(strengthStat.Value),
+            abbreviateNumber(durabilityStat.Value),
+            abbreviateNumber(agilityStat.Value),
+            abbreviateNumber(killsStat.Value),
+            abbreviateNumber(evilKarmaStat.Value),
+            abbreviateNumber(goodKarmaStat.Value)
+        )
+
+        statsCurrentParagraph:SetDesc(desc)
+    end
+
+    strengthStat.Changed:Connect(updateStatsDesc)
+    durabilityStat.Changed:Connect(updateStatsDesc)
+    agilityStat.Changed:Connect(updateStatsDesc)
+    killsStat.Changed:Connect(updateStatsDesc)
+    evilKarmaStat.Changed:Connect(updateStatsDesc)
+    goodKarmaStat.Changed:Connect(updateStatsDesc)
+
+    game:GetService("RunService").Heartbeat:Connect(updateStatsDesc)
+
+    updateStatsDesc()
+end
+
+createCurrentStatsParagraph()
+
+local miscSection = miscTab:MultiSection({
+    Title = "Miscellaneous",
+    Desc = "Additional features to have or use",
+    Icon = "plus",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local mainFeaturessubTabmS = miscSection:Tab({
+  Title = "Main Features",
+  Desc = "These are the important features",
+  Icon = "text-align-justify",
+  Selected = true,
+})
+
+local changeTimesubTabmS = miscSection:Tab({
+  Title = "Change Time",
+  Desc = "Change the current time (you can only see)",
+  Icon = "clock",
+})
+
+local enchancementssubTabmS = miscSection:Tab({
+  Title = "Enchancements",
+  Desc = "Enchance features",
+  Icon = "circle-fading-arrow-up",
+})
+
+local shiftLockButton = mainFeaturessubTabmS:Button({
+    Title = "Perm Shiftlock",
+    Desc = "This gives you shiftlock but it is permanent!",
+    Locked = false,
+    Callback = function()
+      loadstring(game:HttpGet('https://pastebin.com/raw/CjNsnSDy'))()
+    end
+})
+
+local walkOnWaterButton = mainFeaturessubTabmS:Button({
+    Title = "Walk on Water",
+    Desc = "This allows you to walk on the water",
+    Locked = false,
+    Callback = function()
+      loadstring(game:HttpGet('https://pastebin.com/raw/xNUMcmvW'))()
+    end
+})
+
+mainFeaturessubTabmS:Space()
+mainFeaturessubTabmS:Divider()
+
+local disableTradeToggle = mainFeaturessubTabmS:Toggle({
+    Title = "Disable Trade",
+    Desc = "Disables your trade so nobody will ever spam you or anyone",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+      local tradeEvent = game:GetService("ReplicatedStorage").rEvents.tradingEvent
+    if state then
+        tradeEvent:FireServer("disableTrading")
+    else
+        tradeEvent:FireServer("enableTrading")
+    end
+    end
+})
+
+local hidePetToggle = mainFeaturessubTabmS:Toggle({
+    Title = "Hide Pets",
+    Desc = "Pets get hidden, usually helps with less lag",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+      local petEvent = game:GetService("ReplicatedStorage").rEvents.showPetsEvent
+    if state then
+        petEvent:FireServer("hidePets")
+    else
+        petEvent:FireServer("showPets")
+    end
+    end
+})
+
+mainFeaturessubTabmS:Space()
+mainFeaturessubTabmS:Divider()
+
+local freeAutoLiftToggle = mainFeaturessubTabmS:Toggle({
+    Title = "Free Autolift",
+    Desc = "Makes the gamepass of Autolift free",
+    Icon = "",
+    Type = "Toggle",
+    Value = false,
+    Callback = function(state)
+      local gamepassFolder = game:GetService("ReplicatedStorage").gamepassIds
+        local player = game:GetService("Players").LocalPlayer
+        for _, gamepass in pairs(gamepassFolder:GetChildren()) do
+            local value = Instance.new("IntValue")
+            value.Name = gamepass.Name
+            value.Value = gamepass.Value
+            value.Parent = player:WaitForChild("ownedGamepasses")
+        end
+    end
+})
+
+local Lighting = game:GetService("Lighting")
+
+local times = {
+    Morning = 6,
+    Day = 12,
+    Afternoon = 18,
+    Midnight = 0,
+}
+
+local selectedValue = "Day"
+
+local chooseTimeDropdown = changeTimesubTabmS:Dropdown({
+    Title = "Choose Time",
+    Desc = "Choose certain time pls",
+    Values = { "Morning", "Day", "Afternoon", "Midnight" },
+    Value = "Day",
+    Callback = function(Value)
+        selectedValue = Value
+    end
+})
+
+local changeTimeButton = changeTimesubTabmS:Button({
+    Title = "Change Time",
+    Desc = "Changes the time based on what you chose",
+    Locked = false,
+    Callback = function()
+        local time = times[selectedValue]
+        if time ~= nil then
+            Lighting.ClockTime = time
+        end
+    end
+})
+
+local Players = game:GetService("Players")
+local VirtualUser = game:GetService("VirtualUser")
+local LocalPlayer = Players.LocalPlayer
+
+local antiAfkGui = nil
+local antiAfkConnection = nil
+
+local antiAfkButton = enchancementssubTabmS:Button({
+    Title = "Anti AFK",
+    Desc = "This is an UI to keep you from not being kicked out of the server at long extents of time",
+    Locked = false,
+    Callback = function()
+        if antiAfkGui then
+            antiAfkGui:Destroy()
+            antiAfkGui = nil
+            if antiAfkConnection then
+                antiAfkConnection:Disconnect()
+                antiAfkConnection = nil
+            end
+            return
+        end
+
+        antiAfkGui = Instance.new("ScreenGui")
+        antiAfkGui.ResetOnSpawn = false
+        antiAfkGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.fromOffset(180, 70)
+        frame.Position = UDim2.fromScale(0.5, 0.5)
+        frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        frame.Active = true
+        frame.Draggable = true
+        frame.Parent = antiAfkGui
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 10)
+        corner.Parent = frame
+
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.Text = "Anti AFK Enabled"
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Parent = frame
+
+        antiAfkConnection = LocalPlayer.Idled:Connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+    end
+})
+
+local antiLagButton = enchancementssubTabmS:Button({
+    Title = "Anti Lag",
+    Desc = "Renders down everything to decrease lag",
+    Locked = false,
+    Callback = function()
+        local p = game:GetService("Players")
+        local l = p.LocalPlayer
+        local g = game:GetService("Lighting")
+        local w = game:GetService("Workspace")
+        local s = settings()
+
+        local function q(c)
+            for _, v in pairs(c:GetDescendants()) do
+                if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") or v:IsA("Highlight") then
+                    v.Enabled = false
+                elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("SurfaceAppearance") then
+                    v:Destroy()
+                elseif v:IsA("PointLight") or v:IsA("SpotLight") or v:IsA("SurfaceLight") then
+                    v.Enabled = false
+                elseif v:IsA("Shirt") or v:IsA("Pants") or v:IsA("ShirtGraphic") then
+                    v:Destroy()
+                elseif v:IsA("Accessory") then
+                    v:Destroy()
+                elseif v:IsA("MeshPart") or v:IsA("UnionOperation") or v:IsA("Part") then
+                    v.Material = Enum.Material.SmoothPlastic
+                    v.Reflectance = 0
+                    v.CastShadow = false
+                end
+            end
+        end
+
+        for _, plr in pairs(p:GetPlayers()) do
+            if plr ~= l and plr.Character then
+                q(plr.Character)
+                plr.CharacterAdded:Connect(function(c)
+                    q(c)
+                end)
+            end
+        end
+
+        p.PlayerAdded:Connect(function(plr)
+            if plr ~= l then
+                plr.CharacterAdded:Connect(function(c)
+                    q(c)
+                end)
+            end
+        end)
+
+        for _, d in pairs(w:GetDescendants()) do
+            if d:IsA("Decal") or d:IsA("Texture") then
+                d:Destroy()
+            end
+        end
+
+        s.Rendering.QualityLevel = Enum.QualityLevel.Level01
+        g.GlobalShadows = false
+        g.FogEnd = 9e9
+        g.Brightness = 2
+        g.EnvironmentDiffuseScale = 0
+        g.EnvironmentSpecularScale = 0
+
+        local t = w:FindFirstChildOfClass("Terrain")
+        if t then
+            t.WaterReflectance = 0
+            t.WaterTransparency = 1
+            t.WaterWaveSize = 0
+            t.WaterWaveSpeed = 0
+        end
+    end
+})
+
+local creditsSection = creditTab:MultiSection({
+    Title = "Credits",
+    Desc = "Credits for this",
+    Icon = "credit-card",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local ownerNCreatorsubTabcS = creditsSection:Tab({
+  Title = "Owner and Creator",
+  Icon = "crown",
+  Selected = true,
+})
+
+local uiCreatorsubTabcS = creditsSection:Tab({
+  Title = "UI Creator",
+  Desc = "Didn't create the UI but modified it to this",
+  Icon = "cog",
+})
+
+local Players = game:GetService("Players")
+
+local creatorId = 2576486695
+local uiMakerId = 1764299453
+local uiMakerSecId = 10017073535
+
+
+local function getUserInfo(userId)
+    local name = Players:GetNameFromUserIdAsync(userId)
+    local image = Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+    return name, image
+end
+
+local creatorName, creatorImage = getUserInfo(creatorId)
+local uiMakerName, uiMakerImage = getUserInfo(uiMakerId)
+local uiMakerSecName, uiMakerSecImage = getUserInfo(uiMakerSecId)
+
+local creatorParagraph = ownerNCreatorsubTabcS:Paragraph({
+    Title = "Owner & Creator is " .. creatorName,
+    Desc = "this is the owner, which is also the creator.\nâDreams are needed, so let them beâ â " .. creatorName,
+    Image = creatorImage,
+    ImageSize = 60,
+})
+
+local uiMakerParagraph = uiCreatorsubTabcS:Paragraph({
+    Title = "UI Maker is " .. uiMakerName,
+    Desc = "Go to his discord or find his script LUMEN HUB and you can get WindUI | Boreal",
+    Image = uiMakerImage,
+    ImageSize = 60,
+})
+
+local uiMakerSecParagraph = uiCreatorsubTabcS:Paragraph({
+    Title = "Second Account of UI Maker is " .. uiMakerSecName,
+    Desc = "",
+    Image = uiMakerSecImage,
+    ImageSize = 60,
+})
+
+local uiSection = settingsTab:MultiSection({
+    Title = "User Interface",
+    Desc = "Change the appearance of the UI",
+    Icon = "settings",
+    Box = true,
+    BoxBorder = true,
+    Opened = true,
+})
+
+local uisubTabuiS = uiSection:Tab({
+  Title = "UI",
+  Icon = "user",
+  Selected = true,
+})
+
+local changeStylesubTabuiS = uiSection:Tab({
+  Title = "Change Style",
+  Icon = "geist:chart-activity",
+})
+
+local watermarkSec = uisubTabuiS:Section({
+    Title = "Watermark",
+    Box = true,
+    BoxBorder = true,
+    Opened = false,
+})
+
+local watermarkOpacitySliderchanger = watermarkSec:Slider({
+    Title = "Change Opacity of Watermark",
+    Desc = "That little text you see in the bottom right is the water mark if it gets annoying change the opacity",
+    Value = {
+        Min = 0.10,
+        Max = 1,
+        Default = 0.60
+    },
+    Step = 0.01,
+    Callback = function(value)
+      WM:SetOpacity(value)
+    end
+})
+
+local watermarkOpacitySliderchanger = watermarkSec:Slider({
+    Title = "Change Size of Watermark",
+    Desc = "That little text you see in the bottom right is the water mark if it gets annoying change the size",
+    Value = {
+        Min = 14,
+        Max = 26,
+        Default = 18
+    },
+    Step = 2,
+    Callback = function(value)
+      WM:SetSize(value)
+    end
+})
+
+watermarkSec:Divider()
+
+local destroyWatermarkButton = watermarkSec:Button({
+    Title = "Get Rid of Watermark",
+    Desc = "Is the watermark too weird out of place or annoying just destroy it with clicking this",
+    Locked = true,
+    LockedTitle = "This requires Quantum!",
+    Callback = function()
+      WM:Destroy()
+    end
+})
+
+local sidebarLabelsSec = uisubTabuiS:Section({
+    Title = "Sidebar Labels",
+    Box = true,
+    BoxBorder = true,
+    Opened = false,
+})
+
+local setVisibilityLogoToggle = sidebarLabelsSec:Toggle({
+    Title = "Change Visibility of PROTON HUB logo",
+    Desc = "If this is way to bothering or just insanely just annoying, or want remove some lag",
+    Value = true,
+    Callback = function(state)
+      watermarkLabel:SetVisible(state)
+    end
+})
+
+local destroylogoButton = sidebarLabelsSec:Button({
+    Title = "Get Rid of PROTON HUB Logo",
+    Desc = "Remove is lag is bad. Can reduce some lag",
+    Callback = function()
+      watermarkLabel:Destroy()
+      setVisibilityLogoToggle:Lock()
+    end
+})
+
+local sbsDivider = sidebarLabelsSec:Divider({
+    Title = "These two things are different!",
+    TitleAlignment = "Center",
+    Thickness = 3,
+    TitleSpacing = 3,
+    Color = "Divider",
+    TitleColor = "DividerLabel",
+})
+
+local setVisibilityToggle = sidebarLabelsSec:Toggle({
+    Title = "Change Visibility of Tier label",
+    Desc = "If you are making a video about it and wanna remove it so people aren't focused on it do it.",
+    Value = true,
+    Callback = function(state)
+      tierLabel:SetVisible(state)
+    end
+})
+
+local destroytierButton = sidebarLabelsSec:Button({
+    Title = "Get Rid of Tier Label",
+    Desc = "If you don't want people to see your tier you can delete it permanentely",
+    Callback = function()
+      tierLabel:Destroy()
+      setVisibilityToggle:Lock()
+    end
+})
+
+local warningParagraph = changeStylesubTabuiS:Paragraph({
+    Title = '<font color="#ce1010">WARNING</font> This is still beta, it may not work!!',
+    Desc = "Sorry!",
+})
+
+changeStylesubTabuiS:Divider()
+
+local fonts = {
+    ["Prompt"] = "rbxassetid://12187607287",
+    ["Silkscreen"] = "rbxassetid://12187371840",
+    ["Audiowide"] = "rbxassetid://12187360881"
+}
+
+local selectedFont = "Prompt"
+
+local chooseFontDropdown = changeStylesubTabuiS:Dropdown({
+    Title = "Choose Font",
+    Desc = "",
+    Values = { "Prompt", "Silkscreen", "Audiowide" },
+    Value = "Prompt",
+    Callback = function(option)
+        selectedFont = option
+    end
+})
+
+local ChangeFontButton = changeStylesubTabuiS:Button({
+    Title = "Change Font",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+        local fontId = fonts[selectedFont]
+        if fontId then
+            WindUI:SetFont(fontId)
+        end
+    end
+})
+
+changeStylesubTabuiS:Divider()
+
+local themes = {}
+for themeName, _ in pairs(WindUI:GetThemes()) do
+    table.insert(themes, themeName)
+end
+table.sort(themes)
+local canchangetheme = true
+local canchangedropdown = true
+local themeDropdown = changeStylesubTabuiS:Dropdown({
+    Title = "Change Theme",
+    Values = themes,
+    SearchBarEnabled = true,
+    MenuWidth = 280,
+    Value = "Proton Teal and Purple",
+    Callback = function(theme)
+        canchangedropdown = false
+        WindUI:SetTheme(theme)
+        canchangedropdown = true
+    end
+})
+
+changeStylesubTabuiS:Divider()
+
+local changeLayoutToggle = changeStylesubTabuiS:Toggle({
+    Title = "Change Layout",
+    Desc = "Changes from rounded squircles to more rounded off squares",
+    Value = true,
+    Locked = true,
+    LockedTitle = "Doesn't work at this moment",
+    Callback = function(state)
+    end
+})
+
+local changebdgToggle = changeStylesubTabuiS:Toggle({
+    Title = "Change Visibility of Bottom Drag Bar",
+    Desc = "Changes the Visibility of the drag bar on the bottom making it less ram usage",
+    Value = true,
+    Callback = function(state)
+        Window:SetBottomDragBarEnabled(state)
+    end
+})
+else
+  print("wrong game bro :(")
+end
